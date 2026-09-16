@@ -120,6 +120,23 @@ isort --check-only --profile black gr.py
 
 **运行环境**：`runs-on: self-hosted`，Python 3.11，`astral-sh/setup-uv`，venv 缓存到 `/data/actions/cache`。
 
+### 5.1 实战：给已提 PR 追加 fix commit（单 commit 门禁）
+
+给已提的 PR 追加修复时，多出第二个 commit 会触发 `Check for single commit` 失败，报 `Error: The PR has 2 commits. Please squash it into one commit.`。必须 squash 成一条再 force-push：
+
+```bash
+# 1. 回到 base 分支 tip，把本分支全部改动放回暂存区（staged）
+git reset --soft <base_sha>
+
+# 2. 一次提交（-s 自动加 Signed-off-by）
+git commit -s -m "..." -m "..."
+
+# 3. force-push
+git push --force git@github-vllm-gr:DINGEde/vllm-gr.git <branch>:<branch>
+```
+
+**force-push 必须用 `--force`，不能用 `--force-with-lease`**：push 目标是完整 URL（`git@github-vllm-gr:DINGEde/vllm-gr.git`）而非配置好的 remote，本地没有 remote-tracking ref，`--force-with-lease` 会报 `stale info` 拒绝推送。
+
 ---
 
 ## 6. GPU benchmark 门禁（`decode-benchmark` job）
@@ -174,3 +191,33 @@ git commit -s
 ```
 
 **提交路径提示**（详见项目 memory）：服务器 SSH over 443 → 自己的 fork `DINGEde/vllm-gr` push → 本地 Windows `gh`（带代理）`gh pr create`。服务器对 GitHub 只通 SSH over 443，HTTPS 全断。
+
+---
+
+## 8. CI 失败定位技巧
+
+门禁红了之后，不必一个个点网页，用 gh 命令行直接定位失败原因：
+
+```bash
+# 0. 找最新 run id（按 head 分支过滤）
+gh run list --repo JiusiServe/vllm-gr --branch <head-branch> --limit 3 \
+  --json databaseId,name,conclusion,headSha
+
+# 1. 列出该 run 的 job 与结论，定位是哪个 job 失败
+gh api repos/JiusiServe/vllm-gr/actions/runs/<run_id>/jobs \
+  --jq '.jobs[] | "\(.id) \(.name): \(.conclusion)"'
+
+# 2. 拉失败 job 的日志（失败的具体原因在这里）
+gh run view <run_id> --repo JiusiServe/vllm-gr --job <job_id> --log
+```
+
+**两个关键点（本次实测踩坑）**：
+
+1. **check-runs 的 annotations 经常信息不足**。例如单 commit 门禁失败时，check-runs annotations 只给 `Process completed with exit code 1`，真正的失败原因（`Error: The PR has 2 commits...`）只在 job 日志里。所以定位必须拉 job 日志，不能只看 check 列表的绿/红。
+
+2. **日志下载走 Azure blob / results-receiver 域名，本地代理（`127.0.0.1:5188`）可能 EOF**。实测：
+   - `gh run view <run_id> --log-failed` → 报 `Get "https://results-receiver.actions.githubusercontent.com/...": EOF`
+   - `gh api .../actions/jobs/<job_id>/logs` → 报 `Get "https://productionresultssa15.blob.core.windows.net/...": EOF`
+   - ✅ `gh run view <run_id> --job <job_id> --log` → 可用（重试几次，EOF 多为瞬时抖动）
+
+   所以优先用 `gh run view --job <id> --log`；若失败多试几次再考虑换 `--log-failed`。
