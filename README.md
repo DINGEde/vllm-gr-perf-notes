@@ -6,6 +6,7 @@ OneRec / vllm-gr decode 后 CPU 性能优化的实验记录与归因分析。
 
 - [Beam Search Decode 性能实验总览](beam_search_decode_perf_summary.md) —— 结果展示 + 后续优化方向（含正式 AB 结果）
 - [decode 后 CPU 过程归因分析](beam_search_cpu_postprocess_optimization.md) —— `decode_overhead` 逐桶分解与 GC 归因
+- [Prefill 缓存命中 vs 未命中 Profiling](prefill_cache_hit_vs_miss_profiling.md) —— 单请求 hit/miss Kineto trace 对比（prefill 省 ~24ms，原始 trace 见 `traces/`）
 - [CI / PR 门禁要求](ci_gate_requirements.md) —— 向 JiusiServe/vllm-gr 提 PR 的门禁与避坑
 
 ## 场景
