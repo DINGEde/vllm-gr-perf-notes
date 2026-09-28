@@ -1,0 +1,13 @@
+revision      : 338fd6f8ff3b91775aa99fe8a9099cca65d494b7
+worktree      : ~/vllm-gr-decode-graph  (DIRTY -- see dirty_tree.patch)
+dirty files   : vllm_gr/entrypoints/gr.py
+                vllm_gr/entrypoints/beam_search_v1/output_processor.py
+                (uncommitted changes to the lazy beam-materialization path,
+                 left in the worktree by another session on 2026-09-22)
+script        : test_profilling/profile_qwen3_prefill_v1_b1_l1024.py
+model         : /opt/qwen3sid/models/qwen3-0.6b-sid  (Qwen3-0.6B + SID vocab,
+                token ids aligned with OneRec-1.7B)
+gpu           : NVIDIA L20, device 0, exclusive (tools/lock_gpu.py)
+captured      : 2026-09-28
+
+WARNING: the recorded revision does NOT capture the uncommitted changes above.
