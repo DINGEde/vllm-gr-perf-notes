@@ -10,6 +10,15 @@ OneRec / vllm-gr decode 后 CPU 性能优化的实验记录与归因分析。
 - [Prefill 缓存命中 vs 未命中 Profiling（legacy）](prefill_cache_hit_vs_miss_profiling.md) —— 走 `beam_search` 旧接口的 hit/miss Kineto trace 对比（prefill 省 ~24ms，原始 trace 见 `traces/`）
 - [CI / PR 门禁要求](ci_gate_requirements.md) —— 向 JiusiServe/vllm-gr 提 PR 的门禁与避坑
 
+## 稳定性与长跑测试
+
+`beam_search_v1` 会话生命周期（取消 / 暂停与恢复 / 编号跨次复用）的长时间稳定性测试，六个批次、
+请求循环合计约 26 小时。结论：**未发现需要修复的缺陷**。
+
+- [长跑稳定性测试结果摘要](SOAK_SUMMARY.md) —— 一页结论：目的、设置（离线 / 单进程与多进程 / 并发 1）、结果与归因
+- [长跑稳定性测试完整报告](SOAK_RESULTS.md) —— 逐批次的实现方式、逐项判据实测值与归因分析
+- [长跑测试方案](SOAK_PLAN.md) —— 各批次的设计依据、判据定义与已知盲区
+
 ## 场景
 
 `beam_width=128`、`input_length=1024`、`max_tokens=5`（`decode_steps=2`），模型
