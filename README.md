@@ -20,6 +20,16 @@ OneRec / vllm-gr decode 后 CPU 性能优化的实验记录与归因分析。
 - [长跑稳定性测试完整报告](SOAK_RESULTS.md) —— 逐批次的实现方式、逐项判据实测值与归因分析
 - [长跑测试方案](SOAK_PLAN.md) —— 各批次的设计依据、判据定义与已知盲区
 
+## 在线并发与合批
+
+在线入口的并发请求为什么不加速、`--max-num-seqs` 为什么不生效，以及离线合批值多少。
+同一 commit `d3bc50c`、同一张卡、同一 artifact digest 下的受控对照。
+
+- [在线入口并发时延 vs 离线合批（受控对照）](ONLINE_CONCURRENCY_REPORT.md) —— 结论前置，3 张图（时延曲线 / 完成时刻阶梯 / 四做法对照）。
+  结论：**在线入口恒为单执行 owner，N 个并发请求排队跑**，比离线串行还慢 7.8%；
+  离线合批省 1.21×，**收益全部来自 decode（1.73×），prefill 合批反而贵 11%**；
+  `--max-num-seqs` 两腿差 ≤ 2.9%，小于单腿自身轮间波动（2–23%）
+
 ## 场景
 
 `beam_width=128`、`input_length=1024`、`max_tokens=5`（`decode_steps=2`），模型
