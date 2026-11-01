@@ -1,0 +1,57 @@
+{
+  "model": "/home/david_cwq/models/OpenOneRec-OneRec-1.7B",
+  "bundle": "/home/david_cwq/DingYi/tools/competitor-suite-600d8035/scripts/gpu_competitors/results/competitor-inputs",
+  "gr_checkout": "/home/david_cwq/DingYi/source/vllm-gr",
+  "gr_python": "/usr/bin/python3",
+  "gr_commit": "33a1fdb2e39dea9e30f648405bd263eb62b15323",
+  "env_root": "/home/david_cwq/DingYi/envs/competitors",
+  "device_label": "NVIDIA H20-3e",
+  "workers": 1,
+  "backends": [
+    "gr"
+  ],
+  "modes": [
+    "U"
+  ],
+  "rounds": 3,
+  "batches_per_round": 16,
+  "warmup_batches": 6,
+  "max_warmup_batches": 30,
+  "gpu_memory_utilization": 0.6,
+  "gr_output_mode": "auto",
+  "gr_prefill_fa": "inherit",
+  "eos_policy": "fixed3",
+  "job_timeout": "11h",
+  "backend_overrides": {
+    "gr": {
+      "env": {
+        "PYTHONNOUSERSITE": "1"
+      }
+    }
+  },
+  "root": "/home/david_cwq/DingYi/results/gr-wb168-h20-20261031-33a1fdb-r1",
+  "lengths": [
+    256,
+    512,
+    1024,
+    2048,
+    4096,
+    8192,
+    10240
+  ],
+  "beams": [
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024
+  ],
+  "batches": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "max_num_batched_tokens": 196608
+}

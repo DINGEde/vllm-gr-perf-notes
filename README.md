@@ -30,6 +30,16 @@ OneRec / vllm-gr decode 后 CPU 性能优化的实验记录与归因分析。
   离线合批省 1.21×，**收益全部来自 decode（1.73×），prefill 合批反而贵 11%**；
   `--max-num-seqs` 两腿差 ≤ 2.9%，小于单腿自身轮间波动（2–23%）
 
+## H20 离线 Beam 性能矩阵
+
+单张 H20-3e 上的离线 beam 批延迟测量，覆盖 vllm-gr / SID-GR / SGLang / vLLM 四个框架。
+
+- [四框架 168 点矩阵（2026-10-31 / 11-01）](h20-test-report/four-framework-20261031/README.md) —— **结论前置**：
+  vllm-gr 中位最快；SGLang 慢 2.08× 且随 beam 放大到 3.96×；SID-GR 与 GR 的分界是二维的
+  （短输入 + 宽 beam 时 SID-GR 反超到 0.90×）；vLLM 原生 beam search 慢 28–529×。
+  含逐配置横向表、比值热图、四框架折线图与合并原始数据（`data/all.csv`，532 行）
+- [H20 离线 Beam 性能实验报告（64 点，先前一轮）](h20-test-report/gr-report.md) —— 单框架、U/C 两种模式、含指标定义与计时边界
+
 ## 场景
 
 `beam_width=128`、`input_length=1024`、`max_tokens=5`（`decode_steps=2`），模型
